@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+    android:id="@+id/activity_score"
+
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2" >
+
+
+        <TextView
+            android:text="Levels"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView2"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="Names"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView3"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+    </GridLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2" >
+
+
+        <TextView
+            android:text="4"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView2"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="aaaaa"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView3"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+    </GridLayout>
+
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2" >
+
+
+        <TextView
+            android:text="3"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView2"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="bbbb"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView3"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+    </GridLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2" >
+
+
+        <TextView
+            android:text="2"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView2"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="cccc"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView3"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+    </GridLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2" >
+
+
+        <TextView
+            android:text="1"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView2"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="ggg"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView3"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+    </GridLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2" >
+
+
+        <TextView
+            android:text="0"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView2"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="ttttt"
+            android:layout_width="174dp"
+            android:layout_height="68dp"
+            android:id="@+id/textView3"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:layout_weight="0.08"
+            android:textAlignment="center" />
+    </GridLayout>
+
+
+
+
+</LinearLayout>
