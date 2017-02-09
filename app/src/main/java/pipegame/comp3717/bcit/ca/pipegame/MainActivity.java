@@ -18,11 +18,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void GameOnClick(final View view) {
-        startActivity(new Intent("android.intent.action.GAME"));
+        Intent i = new Intent(this, GameActivity.class);
+        i.putExtra("level",1);
+        startActivity(i);
     }
 
     public void LevelClick(final View view) {
-        startActivity(new Intent("android.intent.action.LevelSelect"));
+        Intent l = new Intent("android.intent.action.LevelSelect");
+        startActivity(l);
     }
 
 

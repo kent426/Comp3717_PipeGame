@@ -1,0 +1,253 @@
+[1mdiff --git a/app/build.gradle b/app/build.gradle[m
+[1mindex 7e55a04..9a48430 100644[m
+[1m--- a/app/build.gradle[m
+[1m+++ b/app/build.gradle[m
+[36m@@ -25,5 +25,7 @@[m [mdependencies {[m
+         exclude group: 'com.android.support', module: 'support-annotations'[m
+     })[m
+     compile 'com.android.support:appcompat-v7:25.1.0'[m
+[32m+[m[32m    compile 'com.google.android.gms:play-services:10.0.1'[m
+[32m+[m[32m    compile 'com.google.maps.android:android-maps-utils:0.4+'[m
+     testCompile 'junit:junit:4.12'[m
+ }[m
+[1mdiff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml[m
+[1mindex 222a8d6..5d6b8e5 100644[m
+[1m--- a/app/src/main/AndroidManifest.xml[m
+[1m+++ b/app/src/main/AndroidManifest.xml[m
+[36m@@ -2,12 +2,34 @@[m
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"[m
+     package="pipegame.comp3717.bcit.ca.pipegame">[m
+ [m
+[32m+[m[32m    <!--[m
+[32m+[m[32m         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use[m
+[32m+[m[32m         Google Maps Android API v2, but you must specify either coarse or fine[m
+[32m+[m[32m         location permissions for the 'MyLocation' functionality.[m
+[32m+[m[32m    -->[m
+[32m+[m[32m    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />[m
+[32m+[m
+[32m+[m[32m    <!-- EXTERNAL_STORAGE permissions are optional for Android 6.0 onwards. -->[m
+[32m+[m[32m    <uses-permission[m
+[32m+[m[32m        android:name="android.permission.WRITE_EXTERNAL_STORAGE"[m
+[32m+[m[32m        android:maxSdkVersion="22" />[m
+[32m+[m[32m    <uses-permission[m
+[32m+[m[32m        android:name="android.permission.READ_EXTERNAL_STORAGE"[m
+[32m+[m[32m        android:maxSdkVersion="22" />[m
+[32m+[m
+[32m+[m
+[32m+[m
+     <application[m
+         android:allowBackup="true"[m
+         android:icon="@mipmap/ic_launcher"[m
+         android:label="@string/app_name"[m
+         android:supportsRtl="true"[m
+         android:theme="@style/AppTheme">[m
+[32m+[m
+[32m+[m[32m        <meta-data[m
+[32m+[m[32m            android:name="com.google.android.geo.API_KEY"[m
+[32m+[m[32m            android:value="AIzaSyBAAPXNIFPTYz4WREBe3kGTZkRNcHowG7Q" />[m
+[32m+[m
+         <activity android:name=".MainActivity">[m
+             <intent-filter>[m
+                 <action android:name="android.intent.action.MAIN" />[m
+[36m@@ -35,7 +57,11 @@[m
+         ​​​​​​​​​​​​​​​​<action android:name="android.intent.action.LevelSelect" />[m
+         ​​​​​​​​​​​​​​​​<category android:name="android.intent.category.DEFAULT" />[m
+         ​​​​​​​​​​​​</intent-filter>[m
+[31m-        ​​​​​​​​</activity>[m
+[32m+[m[32m        ​​​​​​​​</activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for[m
+[32m+[m[32m     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->[m
+[32m+[m[32m        <meta-data[m
+[32m+[m[32m            android:name="com.google.android.gms.version"[m
+[32m+[m[32m            android:value="@integer/google_play_services_version" />[m
+ [m
+     </application>[m
+ [m
+[1mdiff --git a/app/src/main/java/pipegame/comp3717/bcit/ca/pipegame/GameActivity.java b/app/src/main/java/pipegame/comp3717/bcit/ca/pipegame/GameActivity.java[m
+[1mindex a4f30c4..bb66c72 100644[m
+[1m--- a/app/src/main/java/pipegame/comp3717/bcit/ca/pipegame/GameActivity.java[m
+[1m+++ b/app/src/main/java/pipegame/comp3717/bcit/ca/pipegame/GameActivity.java[m
+[36m@@ -1,18 +1,262 @@[m
+ package pipegame.comp3717.bcit.ca.pipegame;[m
+ [m
+[32m+[m[32mimport android.net.Uri;[m
+ import android.os.Bundle;[m
+[32m+[m
+[32m+[m[32mimport com.google.android.gms.appindexing.Action;[m
+[32m+[m[32mimport com.google.android.gms.appindexing.AppIndex;[m
+[32m+[m[32mimport com.google.android.gms.appindexing.Thing;[m
+[32m+[m[32mimport com.google.android.gms.common.api.GoogleApiClient;[m
+[32m+[m[32mimport com.google.android.gms.maps.CameraUpdateFactory;[m
+[32m+[m[32mimport com.google.android.gms.maps.GoogleMap;[m
+[32m+[m[32mimport com.google.android.gms.maps.OnMapReadyCallback;[m
+[32m+[m[32mimport com.google.android.gms.maps.SupportMapFragment;[m
+[32m+[m[32mimport com.google.android.gms.maps.model.BitmapDescriptorFactory;[m
+[32m+[m[32mimport com.google.android.gms.maps.model.LatLng;[m
+[32m+[m[32mimport com.google.android.gms.maps.model.LatLngBounds;[m
+[32m+[m[32mimport com.google.android.gms.maps.model.MarkerOptions;[m
+[32m+[m[32mimport com.google.maps.android.MarkerManager;[m
+[32m+[m[32mimport com.google.maps.android.kml.KmlContainer;[m
+[32m+[m[32mimport com.google.maps.android.kml.KmlGeometry;[m
+[32m+[m[32mimport com.google.maps.android.kml.KmlLayer;[m
+[32m+[m[32mimport com.google.maps.android.kml.KmlPlacemark;[m
+[32m+[m[32mimport com.google.maps.android.kml.KmlPolygon;[m
+[32m+[m
+[32m+[m[32mimport android.os.Parcelable;[m
+ import android.support.annotation.Nullable;[m
+ import android.support.v7.app.ActionBar;[m
+ import android.support.v7.app.AppCompatActivity;[m
+[32m+[m[32mimport android.util.Log;[m
+[32m+[m
+[32m+[m[32mimport org.xmlpull.v1.XmlPullParserException;[m
+[32m+[m
+[32m+[m[32mimport java.io.IOException;[m
+[32m+[m[32mimport java.util.ArrayList;[m
+[32m+[m[32mimport java.util.Collection;[m
+[32m+[m[32mimport java.util.Collections;[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m
+[32m+[m[32mpublic class GameActivity extends AppCompatActivity implements OnMapReadyCallback {[m
+[32m+[m
+[32m+[m[32m    private GoogleMap map;[m
+[32m+[m
+[32m+[m[32m    private KmlLayer kmlIntersectionsLayer;[m
+[32m+[m[32m    private KmlLayer kmlNeighbourhood_areas;[m
+[32m+[m[32m   static private List<LatLng> points;[m
+[32m+[m[32m    static  private List<LatLngBounds> areas;[m
+[32m+[m[32m    //points in different level[m
+[32m+[m[32m    static private List<ArrayList<LatLng>> pointSets;[m
+[32m+[m[32m    //the levels:from 0 to 14, used for filtering the points[m
+[32m+[m[32m    private int levelarea;[m
+[32m+[m[32m    private LatLngBounds newW = new LatLngBounds([m
+[32m+[m[32m            new LatLng(49.209763, -122.938656), new LatLng(49.220423, -122.911588));[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * ATTENTION: This was auto-generated to implement the App Indexing API.[m
+[32m+[m[32m     * See https://g.co/AppIndexing/AndroidStudio for more information.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    private GoogleApiClient client;[m
+ [m
+[31m-public class GameActivity extends AppCompatActivity {[m
+ [m
+     @Override[m
+     protected void onCreate(Bundle savedInstanceState) {[m
+[32m+[m
+         super.onCreate(savedInstanceState);[m
+         setContentView(R.layout.activity_game);[m
+ [m
+[31m-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);[m
+[32m+[m[32m        levelarea = this.getIntent().getIntExtra("level", 0) - 1;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        SupportMapFragment mapFragment =[m
+[32m+[m[32m                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);[m
+[32m+[m[32m        mapFragment.getMapAsync(this);[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        retrieveFileFromResource();[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        /*getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/[m
+[32m+[m[32m        // ATTENTION: This was auto-generated to implement the App Indexing API.[m
+[32m+[m[32m        // See https://g.co/AppIndexing/AndroidStudio for more information.[m
+[32m+[m[32m        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @Override[m
+[32m+[m[32m    public void onMapReady(GoogleMap googleMap) {[m
+[32m+[m[32m        map = googleMap;[m
+[32m+[m
+[32m+[m[32m        levelarea = this.getIntent().getIntExtra("level", -1) - 1;[m
+[32m+[m[32m        displayPointsAndArea(levelarea, areas, pointSets);[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        map.addMarker(new MarkerOptions().position(new LatLng(49.215826, -122.929966)).title("Marker"));[m
+[32m+[m[32m        map.addMarker(new MarkerOptions().position(new LatLng(49.215826, -122.929966)).title("Marker"));[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    private void retrieveFileFromResource() {[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            kmlIntersectionsLayer = new KmlLayer(map, R.raw.intersections, getApplicationContext());[m
+[32m+[m[32m            kmlNeighbourhood_areas = new KmlLayer(map, R.raw.areas, getApplicationContext());[m
+[32m+[m[32m            points = new ArrayList<LatLng>();[m
+[32m+[m[32m            areas = new ArrayList<LatLngBounds>();[m
+[32m+[m
+[32m+[m
+[32m+[m[32m            points = getPoints(kmlIntersectionsLayer.getContainers());[m
+[32m+[m[32m            areas = getPolygons(kmlNeighbourhood_areas.getContainers());[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m            pointSets = sortPointsToAreas(points, areas);[m
+[32m+[m
+[32m+[m[32m            Log.d("gamelevl", "now" + levelarea);[m
+[32m+[m[32m            Log.d("pointsse", pointSets.toString());[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m            /*kmlIntersectionsLayer.addLayerToMap();*/[m
+[32m+[m
+[32m+[m[32m        } catch (IOException e) {[m
+[32m+[m[32m            e.printStackTrace();[m
+[32m+[m[32m        } catch (XmlPullParserException e) {[m
+[32m+[m[32m            e.printStackTrace();[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    private List<LatLng> getPoints(final Iterable<KmlContainer> containers) {[m
+[32m+[m[32m        List<LatLng> ps = new ArrayList<LatLng>();[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        for (KmlContainer container : containers) {[m
+[32m+[m[32m            // Do something to container[m
+[32m+[m[32m            for (KmlPlacemark placemark : container.getPlacemarks()) {[m
+[32m+[m[32m                // Do something to Placemark[m
+[32m+[m[32m                KmlGeometry g = placemark.getGeometry();[m
+[32m+[m[32m                if (g.getGeometryType().equals("Point")) {[m
+[32m+[m[32m                    LatLng point = (LatLng) g.getGeometryObject();[m
+[32m+[m
+[32m+[m[32m                    ps.add(point);[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (container.hasContainers()) {[m
+[32m+[m[32m                getPoints(container.getContainers());[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return ps;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    private List<LatLngBounds> getPolygons(final Iterable<KmlContainer> containers) {[m
+[32m+[m[32m        List<LatLngBounds> polgs = new ArrayList<>();[m
+[32m+[m
+[32m+[m[32m        for (KmlContainer container : containers) {[m
+[32m+[m[32m            // Do something to container[m
+[32m+[m[32m            for (KmlPlacemark placemark : container.getPlacemarks()) {[m
+[32m+[m[32m                // Do something to Placemark[m
+[32m+[m[32m                KmlGeometry g = placemark.getGeometry();[m
+[32m+[m[32m                if (g.getGeometryType().equals("Polygon")) {[m
+[32m+[m[32m                    KmlPolygon polygon = (KmlPolygon) g;[m
+[32m+[m[32m                    LatLngBounds.Builder builder = new LatLngBounds.Builder();[m
+[32m+[m[32m                    for (LatLng latLng : polygon.getOuterBoundaryCoordinates()) {[m
+[32m+[m[32m                        builder.include(latLng);[m
+[32m+[m[32m                    }[m
+[32m+[m
+[32m+[m[32m                    polgs.add(builder.build());[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m            }[m
+[32m+[m[32m            if (container.hasContainers()) {[m
+[32m+[m[32m                getPolygons(

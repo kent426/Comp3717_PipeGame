@@ -47,7 +47,7 @@
         android:layout_below="@+id/score_btn"
         android:layout_alignStart="@+id/score_btn"
         android:layout_marginTop="22dp"
-        android:id="@+id/button5"
+        android:id="@+id/button1"
         android:layout_alignEnd="@+id/score_btn" />
 
     <Button
