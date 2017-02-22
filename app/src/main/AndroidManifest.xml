@@ -14,8 +14,13 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="22" />
     <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:name="android.permissionREAD_EXTERNAL_STORAGE"
         android:maxSdkVersion="22" />
+
+    <uses-permission
+        android:name="android.permission.INTERNET"/>
+
+    <uses-library android:name="com.google.android.maps" />
 
 
 
@@ -28,7 +33,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBAAPXNIFPTYz4WREBe3kGTZkRNcHowG7Q" />
+            android:value="AIzaSyCbYYga9xDLxHlNhh7ZYfdJxQZ31PC3_NU" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
