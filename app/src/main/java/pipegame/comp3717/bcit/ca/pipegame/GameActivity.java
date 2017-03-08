@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 import com.google.maps.android.MarkerManager;
 import com.google.maps.android.kml.KmlContainer;
 import com.google.maps.android.kml.KmlGeometry;
@@ -47,11 +48,14 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap map;
     //the levels:from 0 to 14, used for filtering the points
     private int levelarea;
+    private Map myMapBeha;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+
+
 
 
 
@@ -64,6 +68,8 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_game);
 
         levelarea = this.getIntent().getIntExtra("level", 0) - 1;
+
+
 
 
         SupportMapFragment mapFragment =
@@ -90,7 +96,8 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-        new Map(this).execute(map);
+       myMapBeha = new Map(this);
+        myMapBeha.execute(map);
     }
 
 
@@ -201,6 +208,7 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onStart()  {
         super.onStart();
+        Log.d("state", "onStart: ");
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -211,8 +219,24 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("state", "onRestart: ");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("state", "onPause: ");
+
+
+    }
+
+    @Override
     public void onStop() {
+        Log.d("State", "onStop: ");
         super.onStop();
+
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.

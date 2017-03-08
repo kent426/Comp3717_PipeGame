@@ -1,28 +1,24 @@
 package pipegame.comp3717.bcit.ca.pipegame;
 
-import android.app.Activity;
+import android.graphics.Color;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.kml.KmlContainer;
 import com.google.maps.android.kml.KmlGeometry;
 import com.google.maps.android.kml.KmlLayer;
 import com.google.maps.android.kml.KmlPlacemark;
-import com.google.maps.android.kml.KmlPolygon;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,18 +26,19 @@ import java.util.List;
  * Created by Kent on 2017-02-21.
  */
 
-public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
+public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Serializable {
 
     private GameActivity activity;
 
     private GoogleMap map;
     Intersections intersections;
+    Bounds bounds;
     ArrayList<PolylineOptions> allConnectedPoints;
 
     private KmlLayer kmlIntersectionsLayer;
     private KmlLayer kmlNeighbourhood_areas;
     private ArrayList<LatLng> points;
-    static  private List<LatLngBounds> areas;
+    private List<LatLngBounds> areas;
     //points in different level
     static private List<ArrayList<LatLng>> pointSets;
     //the levels:from 0 to 14, used for filtering the points
@@ -50,24 +47,32 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
     public Map(GameActivity a) {
         activity = a;
         intersections = new Intersections(a);
+        bounds = new Bounds(a);
+        /*retrieveFileFromResource();*/
+
 
 
     }
 
     protected void onPreExecute() {
         super.onPreExecute();
-        retrieveFileFromResource();
         map = activity.getmap();
-        displayPointsAndArea(activity.getLevelarea(),areas,pointSets);
+
+
+
+
 
 
     }
 
     @Override
     protected GoogleMap doInBackground(GoogleMap... g) {
+        bounds.readpointsForBound();
         intersections.readPoints();
         allConnectedPoints = intersections.getPolylineOptions();
         points = intersections.getPoints();
+
+
 
 
 
@@ -82,6 +87,9 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
 
     @Override
     protected void onPostExecute(GoogleMap g) {
+        LatLngBounds bn = bounds.getBound();
+        displayPointsAndArea(bn);
+
 
         super.onPostExecute(g);
         for(PolylineOptions p: allConnectedPoints) {
@@ -89,42 +97,64 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
         }
 
         for (LatLng p : points) {
-            map.addMarker(new MarkerOptions()
-                    .position(p)
-                    .anchor(0.5f,0.5f)
-                    .icon(BitmapDescriptorFactory.fromResource(R.raw.inters)));
-            Log.d("show", "onPostExecute: ");
+            if(bn.contains(p)) {
+                map.addMarker(new MarkerOptions()
+                        .position(p)
+                        .anchor(0.5f,0.5f)
+                        .icon(BitmapDescriptorFactory.fromResource(R.raw.inters)));
+            }
+
         }
+
+
 
 
     }
 
-    private void retrieveFileFromResource() {
+    private void displayPointsAndArea( LatLngBounds areas) {
+        int width = this.activity.getResources().getDisplayMetrics().widthPixels;
+        int height = this.activity.getResources().getDisplayMetrics().heightPixels;
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(areas, width, height, 1));
+        map.setLatLngBoundsForCameraTarget(areas);
+
+
+
+/*        for (LatLng p : pointSets.get(level)) {
+            map.addMarker(new MarkerOptions()
+                    .position(p)
+                    .icon(BitmapDescriptorFactory.fromResource(R.raw.inters)));
+
+        }*/
+
+
+    }
+
+/*    private void retrieveFileFromResource() {
         try {
-            /*kmlIntersectionsLayer = new KmlLayer(map, R.raw.intersections,this.activity.getApplicationContext());*/
+            *//*kmlIntersectionsLayer = new KmlLayer(map, R.raw.intersections,this.activity.getApplicationContext());*//*
             kmlNeighbourhood_areas = new KmlLayer(map, R.raw.areas, this.activity.getApplicationContext());
-            /*points = new ArrayList<LatLng>();*/
+            *//*points = new ArrayList<LatLng>();*//*
             areas = new ArrayList<LatLngBounds>();
 
 
-            /*points = getPoints(kmlIntersectionsLayer.getContainers());*/
+            *//*points = getPoints(kmlIntersectionsLayer.getContainers());*//*
             areas = getPolygons(kmlNeighbourhood_areas.getContainers());
 
 
 
 
-            /*pointSets = sortPointsToAreas(points, areas);*/
+            *//*pointSets = sortPointsToAreas(points, areas);*//*
 
-            Log.d("gamelevl", "now" + levelarea);
-            /*Log.d("pointsse", pointSets.toString());*/
-            /*kmlIntersectionsLayer.addLayerToMap();*/
+            Log.d("gamelevl", "now" + this.activity.getLevelarea());
+            *//*Log.d("pointsse", pointSets.toString());*//*
+            *//*kmlIntersectionsLayer.addLayerToMap();*//*
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     private List<LatLng> getPoints(final Iterable<KmlContainer> containers) {
         List<LatLng> ps = new ArrayList<LatLng>();
@@ -150,7 +180,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
         return ps;
     }
 
-    private List<LatLngBounds> getPolygons(final Iterable<KmlContainer> containers) {
+/*    private List<LatLngBounds> getPolygons(final Iterable<KmlContainer> containers) {
         List<LatLngBounds> polgs = new ArrayList<>();
 
         for (KmlContainer container : containers) {
@@ -175,7 +205,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
         }
 
         return polgs;
-    }
+    }*/
 
     private ArrayList<ArrayList<LatLng>> sortPointsToAreas(List<LatLng> points, List<LatLngBounds> areas) {
         ArrayList<ArrayList<LatLng>> pointSets = new ArrayList<ArrayList<LatLng>>();
@@ -195,20 +225,5 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap>   {
         return pointSets;
     }
 
-    private void displayPointsAndArea(int level, List<LatLngBounds> areas, List<ArrayList<LatLng>> pointSets) {
-        int width = this.activity.getResources().getDisplayMetrics().widthPixels;
-        int height = this.activity.getResources().getDisplayMetrics().heightPixels;
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(areas.get(level), width, height, 1));
 
-
-
-/*        for (LatLng p : pointSets.get(level)) {
-            map.addMarker(new MarkerOptions()
-                    .position(p)
-                    .icon(BitmapDescriptorFactory.fromResource(R.raw.inters)));
-
-        }*/
-
-
-    }
 }
