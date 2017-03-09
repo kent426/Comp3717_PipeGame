@@ -11,8 +11,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by Kent on 2017-02-20.
@@ -23,10 +22,21 @@ public class Intersections {
     private ArrayList<LatLng> points;
     Activity act;
 
+
+
+    private java.util.HashMap<LatLng,LatLng[]> findStartAndEnd;
+
+
+
     public Intersections(Activity a) {
         allconnectedPs = new ArrayList<String[]>();
         points = new ArrayList<LatLng>();
         act = a;
+        findStartAndEnd = new HashMap<>();
+    }
+
+    public HashMap<LatLng, LatLng[]> getFindStartAndEnd() {
+        return findStartAndEnd;
     }
 
 
@@ -40,7 +50,13 @@ public class Intersections {
         while (s.hasNext()) {
             String line = s.next();
             String[] pieces = line.split(",");
-            points.add(new LatLng((Double.parseDouble(pieces[1]) + Double.parseDouble(pieces[3]))/2,(Double.parseDouble(pieces[0]) + Double.parseDouble(pieces[2]))/2));
+            LatLng  p = new LatLng((Double.parseDouble(pieces[1]) + Double.parseDouble(pieces[3]))/2,(Double.parseDouble(pieces[0]) + Double.parseDouble(pieces[2]))/2);
+
+
+
+            LatLng[] strend = {new LatLng(Double.parseDouble(pieces[1]), Double.parseDouble(pieces[0])), new LatLng(Double.parseDouble(pieces[3]), Double.parseDouble(pieces[2]))};
+            findStartAndEnd.put(p,strend);
+            points.add(p);
             allconnectedPs.add(pieces);
 
 
@@ -64,6 +80,7 @@ public class Intersections {
                 case 2: col = Color.BLUE;break;
                 case 3: col =Color.GREEN;break;
                 case 4: col = Color.MAGENTA;break;
+
 
 
             }

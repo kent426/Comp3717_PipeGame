@@ -9,6 +9,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -20,7 +21,9 @@ import com.google.maps.android.kml.KmlPlacemark;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Kent on 2017-02-21.
@@ -34,11 +37,13 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     Intersections intersections;
     Bounds bounds;
     ArrayList<PolylineOptions> allConnectedPoints;
+    private HashMap<LatLng,LatLng[]> startNEnd;
 
     private KmlLayer kmlIntersectionsLayer;
     private KmlLayer kmlNeighbourhood_areas;
     private ArrayList<LatLng> points;
     private List<LatLngBounds> areas;
+    private Marker moveOj;
     //points in different level
     static private List<ArrayList<LatLng>> pointSets;
     //the levels:from 0 to 14, used for filtering the points
@@ -48,6 +53,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         activity = a;
         intersections = new Intersections(a);
         bounds = new Bounds(a);
+        startNEnd = intersections.getFindStartAndEnd();
         /*retrieveFileFromResource();*/
 
 
@@ -91,20 +97,47 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         displayPointsAndArea(bn);
 
 
+
+
         super.onPostExecute(g);
         for(PolylineOptions p: allConnectedPoints) {
             g.addPolyline(p);
         }
 
+        ArrayList<LatLng> curLevelPoint = new ArrayList<>();
         for (LatLng p : points) {
             if(bn.contains(p)) {
+                curLevelPoint.add(p);
                 map.addMarker(new MarkerOptions()
                         .position(p)
                         .anchor(0.5f,0.5f)
                         .icon(BitmapDescriptorFactory.fromResource(R.raw.inters)));
+
             }
 
         }
+
+        LatLng randomLaLg = curLevelPoint.get((new Random().nextInt(curLevelPoint.size())));
+
+        LatLng moveOjlalg = startNEnd.get(randomLaLg)[0];
+        moveOj = map.addMarker(new MarkerOptions().position(moveOjlalg)
+                .title("hello"));
+
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+               LatLng[] se =  startNEnd.get(marker.getPosition());
+                if(se[0].equals(moveOj.getPosition())) {
+                    MarkerAnimation.animateMarkerToHC(moveOj,se[1],new LatLngInterpolator.Linear());
+                }
+                if(se[1].equals(moveOj.getPosition())) {
+                    MarkerAnimation.animateMarkerToHC(moveOj,se[0],new LatLngInterpolator.Linear());
+                }
+
+
+                return false;
+            }
+        });
 
 
 
@@ -115,7 +148,8 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         int width = this.activity.getResources().getDisplayMetrics().widthPixels;
         int height = this.activity.getResources().getDisplayMetrics().heightPixels;
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(areas, width, height, 1));
-        map.setLatLngBoundsForCameraTarget(areas);
+        /*map.setLatLngBoundsForCameraTarget(areas);*/
+    }
 
 
 
@@ -127,7 +161,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         }*/
 
 
-    }
+
 
 /*    private void retrieveFileFromResource() {
         try {
