@@ -126,13 +126,22 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-               LatLng[] se =  startNEnd.get(marker.getPosition());
-                if(se[0].equals(moveOj.getPosition())) {
-                    MarkerAnimation.animateMarkerToHC(moveOj,se[1],new LatLngInterpolator.Linear());
+                try {
+                    if(startNEnd.containsKey(marker.getPosition())) {
+                        LatLng[] se =  startNEnd.get(marker.getPosition());
+                        if(se[0].equals(moveOj.getPosition())) {
+                            MarkerAnimation.animateMarkerToHC(moveOj,se[1],new LatLngInterpolator.Linear());
+                        }
+                        if(se[1].equals(moveOj.getPosition())) {
+                            MarkerAnimation.animateMarkerToHC(moveOj,se[0],new LatLngInterpolator.Linear());
+                        }
+                    }
+
+
+                } catch (NullPointerException e) {
+
                 }
-                if(se[1].equals(moveOj.getPosition())) {
-                    MarkerAnimation.animateMarkerToHC(moveOj,se[0],new LatLngInterpolator.Linear());
-                }
+
 
 
                 return false;
