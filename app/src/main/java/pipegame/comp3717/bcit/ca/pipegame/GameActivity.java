@@ -91,10 +91,6 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
         displayPointsAndArea(levelarea, areas, pointSets);*/
 
 
-        map.addMarker(new MarkerOptions().position(new LatLng(49.215826, -122.929966)).title("Marker"));
-        map.addMarker(new MarkerOptions().position(new LatLng(49.215826, -122.929436)).title("Marker"));
-
-
 
        myMapBeha = new Map(this);
         myMapBeha.execute(map);

@@ -25,6 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import pipegame.comp3717.bcit.ca.pipegame.BFS.Edge;
+import pipegame.comp3717.bcit.ca.pipegame.BFS.IntersectionMap;
+import pipegame.comp3717.bcit.ca.pipegame.BFS.IntersectionNode;
+
 /**
  * Created by Kent on 2017-02-21.
  */
@@ -34,16 +38,26 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     private GameActivity activity;
 
     private GoogleMap map;
-    Intersections intersections;
     Bounds bounds;
+
+    /*version 3*/
+    IntersectionMap interMap;
+
+    /*version 3*/
+
+    /*version 2*/
+/*    Intersections intersections;
     ArrayList<PolylineOptions> allConnectedPoints;
-    private HashMap<LatLng,LatLng[]> startNEnd;
+    private HashMap<LatLng,LatLng[]> startNEnd;*/
+    /*version 2*/
 
     private KmlLayer kmlIntersectionsLayer;
     private KmlLayer kmlNeighbourhood_areas;
     private ArrayList<LatLng> points;
     private List<LatLngBounds> areas;
     private Marker moveOj;
+    private Marker destin;
+    private HashMap<Marker,Edge> markerToEdgeMap;
     //points in different level
     static private List<ArrayList<LatLng>> pointSets;
     //the levels:from 0 to 14, used for filtering the points
@@ -51,9 +65,10 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
     public Map(GameActivity a) {
         activity = a;
-        intersections = new Intersections(a);
         bounds = new Bounds(a);
-        startNEnd = intersections.getFindStartAndEnd();
+        interMap = new IntersectionMap(a);
+/*        intersections = new Intersections(a);
+        startNEnd = intersections.getFindStartAndEnd();*/
         /*retrieveFileFromResource();*/
 
 
@@ -74,9 +89,17 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     @Override
     protected GoogleMap doInBackground(GoogleMap... g) {
         bounds.readpointsForBound();
-        intersections.readPoints();
+
+        /*version3*/
+        interMap.readAndConstruct();
+
+        /*version3*/
+
+        /*version 2*/
+/*        intersections.readPoints();
         allConnectedPoints = intersections.getPolylineOptions();
-        points = intersections.getPoints();
+        points = intersections.getPoints();*/
+        /*version2*/
 
 
 
@@ -95,25 +118,154 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     protected void onPostExecute(GoogleMap g) {
         LatLngBounds bn = bounds.getBound();
         displayPointsAndArea(bn);
-
-
-
-
         super.onPostExecute(g);
-        for(PolylineOptions p: allConnectedPoints) {
+
+
+        /*version3*/
+
+        for(PolylineOptions p: interMap.getPolygonOptions()) {
+            g.addPolyline(p);
+        }
+
+        markerToEdgeMap = new HashMap<>();
+        HashMap<MarkerOptions,Edge> pairs = interMap.getMidPointsInBound(bn);
+        for(MarkerOptions mr: pairs.keySet()) {
+            Marker marker = g.addMarker(mr);
+
+            //markers as keys and edges as values
+            markerToEdgeMap.put(marker,pairs.get(mr));
+
+        }
+
+        final IntersectionNode[] startDest = interMap.getRandomPoints(bn);
+
+        moveOj = map.addMarker(new MarkerOptions().position(startDest[0].getLocation())
+                .title("hello"));
+        startDest[0].setSelected(true);
+        destin = map.addMarker(new MarkerOptions().position(startDest[1].getLocation())
+                .title("Destination"));
+
+
+
+
+
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            IntersectionNode i = startDest[0];
+            LatLng cur = moveOj.getPosition();
+            LatLng destinlocation = destin.getPosition();
+
+            int count = 1;
+
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                if(markerToEdgeMap.containsKey(marker)) {
+                    Edge ed =  markerToEdgeMap.get(marker);
+                    ed.getFirst().setSelected(true);
+                    ed.getSecond().setSelected(true);
+
+                }
+
+
+
+                if(marker.equals(moveOj)&& count++ == 1) {
+                    Thread thread = new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+
+                                while(true){
+
+                                    //get the current position
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            cur = moveOj.getPosition();
+                                        }
+                                    });
+                                    //if reach destin, stop moving
+                                    if(cur.equals(destinlocation)) {
+                                        break;
+                                    }
+                                    //next node destination
+                                    /*for(IntersectionNode nextNode: i.getAdjacentNodes()) {
+                                        if(nextNode.)
+                                    }*/
+                                    i = i.getAdjacentNodes().get(new Random().nextInt(i.getAdjacentNodes().size()));
+
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MarkerAnimation.animateMarkerToHC(moveOj,
+                                                    i.getLocation(), new LatLngInterpolator.Linear());
+
+                                        }
+                                    });
+
+
+                                    sleep(3000);
+
+
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+
+                    thread.start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }
+                return false;
+            }});
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*version3*/
+
+
+
+
+
+
+/*        for(PolylineOptions p: allConnectedPoints) {
             g.addPolyline(p);
         }
 
         ArrayList<LatLng> curLevelPoint = new ArrayList<>();
         for (LatLng p : points) {
-            if(bn.contains(p)) {
+            *//*if(bn.contains(p)) {*//*
                 curLevelPoint.add(p);
                 map.addMarker(new MarkerOptions()
                         .position(p)
                         .anchor(0.5f,0.5f)
                         .icon(BitmapDescriptorFactory.fromResource(R.raw.inters)));
 
-            }
+            *//*}*//*
 
         }
 
@@ -146,7 +298,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
                 return false;
             }
-        });
+        });*/
 
 
 
