@@ -128,4 +128,16 @@ public class IntersectionMap {
     public void addNodes(LatLng oneNode) {
 
     }
+
+    public IntersectionNode getNodeByLatLng (LatLng lalg) {
+        IntersectionNode itemToFind = new IntersectionNode(lalg);
+           for(IntersectionNode one: allNodes) {
+               if(one.getLocation().equals(lalg)) {
+                   one.setSelected(true);
+                   return one;
+               }
+           }
+
+        return null;
+    }
 }

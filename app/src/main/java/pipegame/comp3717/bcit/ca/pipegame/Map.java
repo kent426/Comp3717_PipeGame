@@ -29,6 +29,8 @@ import pipegame.comp3717.bcit.ca.pipegame.BFS.Edge;
 import pipegame.comp3717.bcit.ca.pipegame.BFS.IntersectionMap;
 import pipegame.comp3717.bcit.ca.pipegame.BFS.IntersectionNode;
 
+import static java.lang.String.valueOf;
+
 /**
  * Created by Kent on 2017-02-21.
  */
@@ -141,6 +143,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
         moveOj = map.addMarker(new MarkerOptions().position(startDest[0].getLocation())
                 .title("hello"));
+        Log.d("old ", valueOf(startDest[0].getLocation()));
         startDest[0].setSelected(true);
         destin = map.addMarker(new MarkerOptions().position(startDest[1].getLocation())
                 .title("Destination"));
@@ -151,14 +154,20 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             IntersectionNode i = startDest[0];
+
             LatLng cur = moveOj.getPosition();
+            LatLng previousLoc = cur;
             LatLng destinlocation = destin.getPosition();
 
             int count = 1;
+            int countTheFirst = 1;
+
+
 
             @Override
             public boolean onMarkerClick(Marker marker) {
 
+                //tap the mid point on the edge, set two end points's selected attribute to true
                 if(markerToEdgeMap.containsKey(marker)) {
                     Edge ed =  markerToEdgeMap.get(marker);
                     ed.getFirst().setSelected(true);
@@ -176,34 +185,74 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
                                 while(true){
 
-                                    //get the current position
-                                    activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            cur = moveOj.getPosition();
-                                        }
-                                    });
                                     //if reach destin, stop moving
                                     if(cur.equals(destinlocation)) {
+                                        Log.d("game status", "win");
                                         break;
                                     }
-                                    //next node destination
-                                    /*for(IntersectionNode nextNode: i.getAdjacentNodes()) {
-                                        if(nextNode.)
-                                    }*/
-                                    i = i.getAdjacentNodes().get(new Random().nextInt(i.getAdjacentNodes().size()));
 
-                                    activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            MarkerAnimation.animateMarkerToHC(moveOj,
-                                                    i.getLocation(), new LatLngInterpolator.Linear());
+                                    int totalIntersections = i.getAdjacentNodes().size();
+                                    int tappedNumber = 0;
+                                    IntersectionNode nonTappedNode = i.getAdjacentNodes().get(0);
+
+                                    //find how many nodes have been tapped for next intersection
+                                    for(IntersectionNode nextNode: i.getAdjacentNodes()) {
+                                        if(nextNode.isSelected())  {
+                                            tappedNumber++;
+                                        } else {
+                                            nonTappedNode = nextNode;
+                                        }
+                                    }
+
+                                    if(totalIntersections - 1 == tappedNumber ||countTheFirst++==1) {
+                                        i = nonTappedNode;
+                                        previousLoc = cur;
+                                        cur = i.getLocation();
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                MarkerAnimation.animateMarkerToHC(moveOj,
+                                                        i.getLocation(), new LatLngInterpolator.Linear());
+
+                                            }
+                                        });
+
+                                        //set back to false to be ready for the next round
+                                        for (IntersectionNode one: i.getAdjacentNodes()
+                                             ) {
+                                            one.setSelected(false);
+                                            if(one.getLocation().equals(previousLoc)) {
+                                                one.setSelected(true);
+                                                Log.d("set pre", "yes");
+                                            }
 
                                         }
-                                    });
 
 
-                                    sleep(3000);
+                                        //no need to consider the node that is the starting point of the previous round
+
+                                        /*IntersectionNode previousStartPoint = interMap.getNodeByLatLng(previousLoc);
+
+                                        if(previousStartPoint!=null){
+                                            previousStartPoint.setSelected(true);
+                                            Log.d("set pre", "yes");
+                                        }*/
+
+                                    } else {
+                                        //TODO pops up failure dialog
+                                        Log.d("tappedNum", valueOf(tappedNumber));
+                                        Log.d("totalNum", valueOf(totalIntersections));
+                                        Log.d("game status", "end");
+                                        break;
+
+                                    }
+
+                                    //i = i.getAdjacentNodes().get(new Random().nextInt(i.getAdjacentNodes().size()));
+
+
+
+
+                                    sleep(6000);
 
 
                                 }
