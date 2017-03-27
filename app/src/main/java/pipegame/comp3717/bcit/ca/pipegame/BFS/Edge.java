@@ -36,6 +36,20 @@ public class Edge {
         return new LatLng(la,lg);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Edge) {
+            if(this.getFirst().getLocation().equals(((Edge) obj).getFirst().getLocation())&&this.getSecond().getLocation().equals(((Edge) obj).getSecond().getLocation())) {
+                return true;
+            }
+            if(this.getFirst().getLocation().equals(((Edge) obj).getSecond().getLocation())&&this.getSecond().getLocation().equals(((Edge) obj).getFirst().getLocation())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public String getEdge() {
         return one.getLocation().toString()+"&&&" +two.getLocation().toString();
     }

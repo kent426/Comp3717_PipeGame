@@ -53,6 +53,7 @@ public class IntersectionNode {
         return location;
     }
 
+    @Override
     public boolean equals(Object var1) {
         if(this == var1) {
             return true;

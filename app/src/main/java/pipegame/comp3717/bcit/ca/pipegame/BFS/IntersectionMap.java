@@ -2,6 +2,7 @@ package pipegame.comp3717.bcit.ca.pipegame.BFS;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -10,8 +11,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
@@ -26,6 +29,82 @@ import pipegame.comp3717.bcit.ca.pipegame.R;
 public class IntersectionMap {
     //game activity
     Activity act;
+
+
+    HashMap<IntersectionNode,Boolean> nodetoBool;
+
+    public void BFS() {
+        int numNode = allNodes.size();
+        nodetoBool = new HashMap<>();
+        for(IntersectionNode one: allNodes) {
+            nodetoBool.put(one,false);
+        }
+        Iterator<IntersectionNode> iter = allNodes.iterator();
+        System.out.println("------------BFS-------------");
+        int num = 0;
+        while(iter.hasNext()) {
+            num++;
+            IntersectionNode next = iter.next();
+            if(!nodetoBool.get(next))
+                bfs(next);
+        }
+        System.out.println("------------nnnn-------------");
+    }
+
+
+
+    private void bfs(IntersectionNode v) {
+        HashSet<Edge> setNodes = new HashSet<>();
+        nodetoBool.put(v,true);
+        /*System.out.println("visiting vertex " + v.getLocation());*/
+        Deque<IntersectionNode> q = new LinkedList<IntersectionNode>();
+        q.add(v);
+        int num = 0;
+        while(!q.isEmpty()) {
+            LinkedList<IntersectionNode> adjs = q.peekFirst().getAdjacentNodes();
+            for(IntersectionNode ad: adjs) {
+                if(!nodetoBool.get(ad)) {
+                    nodetoBool.put(ad,true);
+                    Edge newEd = new Edge(q.peekFirst(),ad);
+                    /*if(!setNodes.contains(newEd)) {
+                        setNodes.add(newEd);
+                        *//*Log.d("BFS",q.peekFirst().getLocation().longitude + "," +q.peekFirst().getLocation().latitude
+                                + "," +  ad.getLocation().longitude +","+ad.getLocation().latitude);*//*
+                    }*/
+                    boolean ne = true;
+                    for(Edge x: setNodes) {
+                        if(newEd.getFirst().getLocation().equals(((Edge) x).getFirst().getLocation())&&newEd.getSecond().getLocation().equals(((Edge) x).getSecond().getLocation())) {
+                            ne = false;
+                        }
+                        if(newEd.getFirst().getLocation().equals(((Edge) x).getSecond().getLocation())&&newEd.getSecond().getLocation().equals(((Edge) x).getFirst().getLocation())) {
+                            ne = false;
+                        }
+                    }
+                    if(ne) {
+                        setNodes.add(newEd);
+                    }
+
+
+                    q.add(ad);
+                }
+            }
+            q.pollFirst();
+        }
+
+        if(q.isEmpty()) {
+
+            for(Edge one: setNodes) {
+                String writeoneSet="";
+                writeoneSet += String.valueOf(one.getFirst().getLocation().longitude) + "," +String.valueOf(one.getFirst().getLocation().latitude)
+                            + "," +  String.valueOf(one.getSecond().getLocation().longitude) +","+String.valueOf(one.getSecond().getLocation().latitude) + "\n";
+                Log.d("BFS", writeoneSet);
+            }
+
+            System.out.println("------------one set-------------" +allNodes.size());
+
+        }
+    }
+
     private Set<IntersectionNode> allNodes;
     private Set<Edge> allEdges;
 
@@ -50,7 +129,8 @@ public class IntersectionMap {
             Edge edge = new Edge(a,b);
             allNodes.add(a);
             allNodes.add(b);
-            allEdges.add(edge);
+            if(!allEdges.contains(edge))
+                allEdges.add(edge);
         }
 
 

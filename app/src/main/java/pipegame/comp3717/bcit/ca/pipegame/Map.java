@@ -95,7 +95,12 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         /*version3*/
         interMap.readAndConstruct();
 
+
+
         /*version3*/
+
+        /*Bfs*/
+        interMap.BFS();
 
         /*version 2*/
 /*        intersections.readPoints();
