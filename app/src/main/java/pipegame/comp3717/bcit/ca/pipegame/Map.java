@@ -131,7 +131,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
         /*version3*/
 
-        for(PolylineOptions p: interMap.getPolygonOptions()) {
+        for(PolylineOptions p: interMap.getPolygonOptions(bn)) {
             g.addPolyline(p);
         }
 
@@ -179,6 +179,11 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                     ed.getFirst().setSelected(true);
                     ed.getSecond().setSelected(true);
 
+                    Log.d("----------->>>>>>", ed.getFirst().getLocation().longitude + "," + ed.getFirst().getLocation().latitude
+                    + "," + ed.getSecond().getLocation().longitude + "," + ed.getSecond().getLocation().latitude);
+
+                    Log.d("----------->>>>>>", ed.getSecond().getLocation().longitude + "," + ed.getSecond().getLocation().latitude
+                            + "," + ed.getFirst().getLocation().longitude + "," + ed.getFirst().getLocation().latitude);
                 }
 
 
