@@ -147,9 +147,9 @@ public class IntersectionMap {
     public ArrayList<PolylineOptions> getPolygonOptions() {
         ArrayList<PolylineOptions> allPolylines = new ArrayList<PolylineOptions>();
         int count = 1;
-        int col = Color.BLACK;
+        int col = Color.BLUE;
         for(Edge edge: allEdges) {
-            switch((count++)%5) {
+            /*switch((count++)%5) {
                 case 0: col = Color.BLACK; break;
                 case 1: col = Color.RED;break;
                 case 2: col = Color.BLUE;break;
@@ -158,7 +158,7 @@ public class IntersectionMap {
 
 
 
-            }
+            }*/
             allPolylines.add(new PolylineOptions()
                     .add(edge.getFirst().getLocation(),edge.getSecond().getLocation())
                     .width(5)

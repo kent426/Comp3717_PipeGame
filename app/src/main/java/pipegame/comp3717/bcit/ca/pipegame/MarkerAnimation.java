@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -12,8 +13,10 @@ import android.util.Property;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MarkerAnimation {
     static void animateMarkerToGB(final Marker marker, final LatLng finalPosition, final LatLngInterpolator latLngInterpolator) {
@@ -57,6 +60,32 @@ public class MarkerAnimation {
                 float v = animation.getAnimatedFraction();
                 LatLng newPosition = latLngInterpolator.interpolate(v, startPosition, finalPosition);
                 marker.setPosition(newPosition);
+
+
+            }
+        });
+        valueAnimator.setFloatValues(0, 1); // Ignored.
+        valueAnimator.setDuration(6000);
+        valueAnimator.start();
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    static void animateMarkerToHCAndDraw(final GoogleMap googleMap,final Marker marker, final LatLng finalPosition, final LatLngInterpolator latLngInterpolator) {
+        final LatLng startPosition = marker.getPosition();
+
+        ValueAnimator valueAnimator = new ValueAnimator();
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float v = animation.getAnimatedFraction();
+                LatLng newPosition = latLngInterpolator.interpolate(v, startPosition, finalPosition);
+                marker.setPosition(newPosition);
+                googleMap.addPolyline(new PolylineOptions()
+                        .add(startPosition,newPosition)
+                        .width(20)
+                        .color(Color.BLACK));
+
+
             }
         });
         valueAnimator.setFloatValues(0, 1); // Ignored.
