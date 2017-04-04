@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import pipegame.comp3717.bcit.ca.pipegame.BFS.Edge;
 import pipegame.comp3717.bcit.ca.pipegame.BFS.IntersectionMap;
@@ -68,7 +69,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     public Map(GameActivity a) {
         activity = a;
         bounds = new Bounds(a);
-        interMap = new IntersectionMap(a);
+        interMap = Singleton.getInstance(a);
 /*        intersections = new Intersections(a);
         startNEnd = intersections.getFindStartAndEnd();*/
         /*retrieveFileFromResource();*/
@@ -93,14 +94,14 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         bounds.readpointsForBound();
 
         /*version3*/
-        interMap.readAndConstruct();
+        /*interMap.readAndConstruct();*/
 
 
 
         /*version3*/
 
         /*Bfs*/
-        interMap.BFS();
+        //interMap.BFS();
 
         /*version 2*/
 /*        intersections.readPoints();
@@ -221,8 +222,14 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                         activity.runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                MarkerAnimation.animateMarkerToHC(moveOj,
-                                                        i.getLocation(), new LatLngInterpolator.Linear());
+                                                try {
+                                                    MarkerAnimation.animateMarkerToHCAndDraw(get(),moveOj,
+                                                            i.getLocation(), new LatLngInterpolator.Linear());
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                } catch (ExecutionException e) {
+                                                    e.printStackTrace();
+                                                }
 
                                             }
                                         });

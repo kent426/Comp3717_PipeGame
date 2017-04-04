@@ -144,38 +144,26 @@ public class IntersectionMap {
         }
     }
 
-    public ArrayList<PolylineOptions> getPolygonOptions(LatLngBounds bn) {
+    public ArrayList<PolylineOptions> getPolygonOptions() {
         ArrayList<PolylineOptions> allPolylines = new ArrayList<PolylineOptions>();
         int count = 1;
-        int col = Color.BLACK;
+        int col = Color.BLUE;
         for(Edge edge: allEdges) {
-            if(bn.contains(edge.getFirst().getLocation())
-                    &&bn.contains(edge.getSecond().getLocation())) {
-                switch ((count++) % 5) {
-                    case 0:
-                        col = Color.BLACK;
-                        break;
-                    case 1:
-                        col = Color.RED;
-                        break;
-                    case 2:
-                        col = Color.BLUE;
-                        break;
-                    case 3:
-                        col = Color.GREEN;
-                        break;
-                    case 4:
-                        col = Color.MAGENTA;
-                        break;
+            /*switch((count++)%5) {
+                case 0: col = Color.BLACK; break;
+                case 1: col = Color.RED;break;
+                case 2: col = Color.BLUE;break;
+                case 3: col =Color.GREEN;break;
+                case 4: col = Color.MAGENTA;break;
 
 
-                }
-                allPolylines.add(new PolylineOptions()
-                        .add(edge.getFirst().getLocation(), edge.getSecond().getLocation())
-                        .width(5)
-                        .color(col));
-                /*Log.d("points",pieces[0]+pieces[1]+pieces[2]+pieces[3]);*/
-            }
+
+            }*/
+            allPolylines.add(new PolylineOptions()
+                    .add(edge.getFirst().getLocation(),edge.getSecond().getLocation())
+                    .width(5)
+                    .color(col));
+            /*Log.d("points",pieces[0]+pieces[1]+pieces[2]+pieces[3]);*/
         }
         return allPolylines;
 

@@ -15,6 +15,10 @@ public class Singleton {
         private Singleton() {
         }
 
+        public static boolean isCreated() {
+            return intermap==null?false:true;
+        }
+
         public static IntersectionMap getInstance(Activity a) {
             if (intermap == null) {
 
