@@ -22,6 +22,7 @@ import com.google.maps.android.kml.KmlPlacemark;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -61,6 +62,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     private Marker moveOj;
     private Marker destin;
     private HashMap<Marker,Edge> markerToEdgeMap;
+    private HashMap<Edge,Marker> EdgeTomakerMap;
     //points in different level
     static private List<ArrayList<LatLng>> pointSets;
     //the levels:from 0 to 14, used for filtering the points
@@ -87,6 +89,23 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
 
 
+    }
+
+    private ArrayList<Marker> highlighted = new ArrayList<>();
+
+    public void IntersectionToFindMidPointMarker(IntersectionNode inNode,IntersectionNode FromNode) {
+            for(Marker m: highlighted) {
+                m.setIcon(BitmapDescriptorFactory.fromResource(R.raw.inters));
+            }
+            highlighted.clear();
+            LinkedList<Edge> adEdges = inNode.getadEdges();
+            for(Edge eg: adEdges) {
+                if(!eg.contains(FromNode)) {
+                    Marker mk = EdgeTomakerMap.get(eg);
+                    mk.setIcon(BitmapDescriptorFactory.fromResource(R.raw.highligtedinters));
+                    highlighted.add(mk);
+                }
+            }
     }
 
     @Override
@@ -131,17 +150,20 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
         /*version3*/
 
-        for(PolylineOptions p: interMap.getPolygonOptions(bn)) {
+        for(PolylineOptions p: interMap.getPolygonOptions()) {
             g.addPolyline(p);
         }
 
         markerToEdgeMap = new HashMap<>();
+        EdgeTomakerMap = new HashMap<>();
         HashMap<MarkerOptions,Edge> pairs = interMap.getMidPointsInBound(bn);
         for(MarkerOptions mr: pairs.keySet()) {
             Marker marker = g.addMarker(mr);
 
             //markers as keys and edges as values
             markerToEdgeMap.put(marker,pairs.get(mr));
+
+            EdgeTomakerMap.put(pairs.get(mr),marker);
 
         }
 
@@ -160,6 +182,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             IntersectionNode i = startDest[0];
+            IntersectionNode prevNode = i;
 
             LatLng cur = moveOj.getPosition();
             LatLng previousLoc = cur;
@@ -216,6 +239,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                     }
 
                                     if(totalIntersections - 1 == tappedNumber ||countTheFirst++==1) {
+                                        prevNode  =i;
                                         i = nonTappedNode;
                                         previousLoc = cur;
                                         cur = i.getLocation();
@@ -225,6 +249,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                                 try {
                                                     MarkerAnimation.animateMarkerToHCAndDraw(get(),moveOj,
                                                             i.getLocation(), new LatLngInterpolator.Linear());
+                                                    IntersectionToFindMidPointMarker(i,prevNode);
                                                 } catch (InterruptedException e) {
                                                     e.printStackTrace();
                                                 } catch (ExecutionException e) {
