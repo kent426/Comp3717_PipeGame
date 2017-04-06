@@ -172,8 +172,8 @@ public class IntersectionMap {
     public HashMap<MarkerOptions,Edge> getMidPointsInBound(LatLngBounds bn) {
         HashMap<MarkerOptions,Edge> midpoints = new HashMap<>();
         for(Edge edge: allEdges) {
-            if(bn.contains(edge.getFirst().getLocation())
-                    &&bn.contains(edge.getSecond().getLocation())) {
+/*            if(bn.contains(edge.getFirst().getLocation())
+                    &&bn.contains(edge.getSecond().getLocation())) {*/
                 LatLng lalg = edge.getMidLocation();
                 MarkerOptions markerOption = new MarkerOptions()
                         .position(lalg)
@@ -181,7 +181,7 @@ public class IntersectionMap {
                         .icon(BitmapDescriptorFactory.fromResource(R.raw.inters));
                 midpoints.put(markerOption,edge);
 
-            }
+              //}
         }
 
         return midpoints;

@@ -69,6 +69,8 @@ public class IntersectionNode {
         return adjacencyNodes;
     }
 
+    public LinkedList<Edge> getadEdges() {return adjacencyEdges;}
+
 
 
 }
