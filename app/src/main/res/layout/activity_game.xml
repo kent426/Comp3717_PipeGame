@@ -11,13 +11,13 @@
     tools:context="pipegame.comp3717.bcit.ca.pipegame.GameActivity">
 
 
-    <Button
-        android:text="Score"
+<!--    <Button
+        android:text="Start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button"
         android:layout_above="@+id/textView2"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true" />-->
 
 
     <TextView

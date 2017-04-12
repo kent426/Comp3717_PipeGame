@@ -27,7 +27,11 @@ import pipegame.comp3717.bcit.ca.pipegame.R;
  */
 
 public class IntersectionMap {
-    //game activity
+    public Activity getAct() {
+        return act;
+    }
+
+    //main activity
     Activity act;
 
 
@@ -147,7 +151,7 @@ public class IntersectionMap {
     public ArrayList<PolylineOptions> getPolygonOptions() {
         ArrayList<PolylineOptions> allPolylines = new ArrayList<PolylineOptions>();
         int count = 1;
-        int col = Color.BLUE;
+        int col = Color.BLACK;
         for(Edge edge: allEdges) {
             /*switch((count++)%5) {
                 case 0: col = Color.BLACK; break;
@@ -188,7 +192,7 @@ public class IntersectionMap {
 
     }
 
-    public IntersectionNode[] getRandomPoints(LatLngBounds bn) {
+    public LinkedList<IntersectionNode> getRandomPoints(LatLngBounds bn) {
         LinkedList<IntersectionNode> locations = new LinkedList<>();
 
         for(IntersectionNode one: allNodes) {
@@ -197,11 +201,12 @@ public class IntersectionMap {
                 locations.add(one);
             }
         }
-        IntersectionNode[] startAndDestination = new IntersectionNode[2];
+        return locations;
+/*        IntersectionNode[] startAndDestination = new IntersectionNode[2];
         startAndDestination[0] = locations.remove((new Random().nextInt(locations.size())));
-        startAndDestination[1] = locations.remove((new Random().nextInt(locations.size())));
+        startAndDestination[1] = locations.remove((new Random().nextInt(locations.size())));*/
 
-        return startAndDestination;
+
     }
 
 

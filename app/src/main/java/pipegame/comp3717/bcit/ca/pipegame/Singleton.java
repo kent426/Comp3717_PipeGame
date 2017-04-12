@@ -12,6 +12,17 @@ public class Singleton {
 
         private static IntersectionMap intermap;
 
+    public static boolean isCancelAsyn() {
+        return cancelAsyn;
+    }
+
+    public static void setCancelAsyn(boolean cancelAsyn) {
+        cancelAsyn = cancelAsyn;
+    }
+
+    private static boolean cancelAsyn = false;
+
+
         private Singleton() {
         }
 
@@ -28,6 +39,7 @@ public class Singleton {
             }
             return intermap;
         }
+
         // other useful methods here
     }
 

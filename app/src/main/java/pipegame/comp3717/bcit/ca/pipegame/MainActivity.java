@@ -21,6 +21,15 @@ public class MainActivity extends AppCompatActivity {
             Singleton.getInstance(this).readAndConstruct();
         }
 
+        Intent getIntent = getIntent();
+
+        if(getIntent.getBooleanExtra("toGame",false)){
+            Intent togame = new Intent(MainActivity.this, GameActivity.class);
+            int le = getIntent.getIntExtra("level",1);
+            togame.putExtra("level",le);
+            startActivity(togame);
+        }
+
     }
 
     public void ScoreOnClick(final View view) {

@@ -3,6 +3,7 @@ package pipegame.comp3717.bcit.ca.pipegame.BFS;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * Created by Kent on 2017-03-13.
@@ -67,6 +68,10 @@ public class IntersectionNode {
 
     public LinkedList<IntersectionNode> getAdjacentNodes() {
         return adjacencyNodes;
+    }
+
+    public IntersectionNode getRandomadNode() {
+        return adjacencyNodes.get((new Random().nextInt(adjacencyNodes.size())));
     }
 
     public LinkedList<Edge> getadEdges() {return adjacencyEdges;}

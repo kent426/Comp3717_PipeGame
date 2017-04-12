@@ -1,8 +1,13 @@
 package pipegame.comp3717.bcit.ca.pipegame;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -61,8 +66,8 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
     private List<LatLngBounds> areas;
     private Marker moveOj;
     private Marker destin;
-    private HashMap<Marker,Edge> markerToEdgeMap;
-    private HashMap<Edge,Marker> EdgeTomakerMap;
+    private HashMap<Marker, Edge> markerToEdgeMap;
+    private HashMap<Edge, Marker> EdgeTomakerMap;
     //points in different level
     static private List<ArrayList<LatLng>> pointSets;
     //the levels:from 0 to 14, used for filtering the points
@@ -72,10 +77,10 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         activity = a;
         bounds = new Bounds(a);
         interMap = Singleton.getInstance(a);
+        levelarea = a.getLevelarea();
 /*        intersections = new Intersections(a);
         startNEnd = intersections.getFindStartAndEnd();*/
         /*retrieveFileFromResource();*/
-
 
 
     }
@@ -85,32 +90,37 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         map = activity.getmap();
 
 
-
-
-
-
     }
 
     private ArrayList<Marker> highlighted = new ArrayList<>();
 
-    public void IntersectionToFindMidPointMarker(IntersectionNode inNode,IntersectionNode FromNode) {
-            for(Marker m: highlighted) {
-                m.setIcon(BitmapDescriptorFactory.fromResource(R.raw.inters));
+    public void changeMarkercolorFromRedToGreen(Marker m) {
+        if (highlighted.contains(m)) {
+            m.setIcon(BitmapDescriptorFactory.fromResource(R.raw.highligtedinters));
+        }
+    }
+
+    public void IntersectionToFindMidPointMarker(IntersectionNode inNode, IntersectionNode FromNode) {
+        for (Marker m : highlighted) {
+            m.setIcon(BitmapDescriptorFactory.fromResource(R.raw.inters));
+        }
+        highlighted.clear();
+        LinkedList<Edge> adEdges = inNode.getadEdges();
+        for (Edge eg : adEdges) {
+            if (!eg.contains(FromNode)) {
+                Marker mk = EdgeTomakerMap.get(eg);
+                mk.setIcon(BitmapDescriptorFactory.fromResource(R.raw.gg));
+                highlighted.add(mk);
             }
-            highlighted.clear();
-            LinkedList<Edge> adEdges = inNode.getadEdges();
-            for(Edge eg: adEdges) {
-                if(!eg.contains(FromNode)) {
-                    Marker mk = EdgeTomakerMap.get(eg);
-                    mk.setIcon(BitmapDescriptorFactory.fromResource(R.raw.highligtedinters));
-                    highlighted.add(mk);
-                }
-            }
+        }
     }
 
     @Override
     protected GoogleMap doInBackground(GoogleMap... g) {
-        bounds.readpointsForBound();
+            bounds.readpointsForBound();
+
+
+
 
         /*version3*/
         /*interMap.readAndConstruct();*/
@@ -127,9 +137,6 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         allConnectedPoints = intersections.getPolylineOptions();
         points = intersections.getPoints();*/
         /*version2*/
-
-
-
 
 
         return g[0];
@@ -150,35 +157,67 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
         /*version3*/
 
-        for(PolylineOptions p: interMap.getPolygonOptions()) {
+        for (PolylineOptions p : interMap.getPolygonOptions()) {
             g.addPolyline(p);
         }
 
         markerToEdgeMap = new HashMap<>();
         EdgeTomakerMap = new HashMap<>();
-        HashMap<MarkerOptions,Edge> pairs = interMap.getMidPointsInBound(bn);
-        for(MarkerOptions mr: pairs.keySet()) {
+        HashMap<MarkerOptions, Edge> pairs = interMap.getMidPointsInBound(bn);
+        for (MarkerOptions mr : pairs.keySet()) {
             Marker marker = g.addMarker(mr);
 
             //markers as keys and edges as values
-            markerToEdgeMap.put(marker,pairs.get(mr));
+            markerToEdgeMap.put(marker, pairs.get(mr));
 
-            EdgeTomakerMap.put(pairs.get(mr),marker);
+            EdgeTomakerMap.put(pairs.get(mr), marker);
 
         }
 
-        final IntersectionNode[] startDest = interMap.getRandomPoints(bn);
+        //selecting starting and ending markers
+        final LinkedList<IntersectionNode> DestNodesinBound = interMap.getRandomPoints(bn);
+
+        IntersectionNode dest = DestNodesinBound.get((new Random().nextInt(DestNodesinBound.size())));
+
+        IntersectionNode[] startDesttmp = new IntersectionNode[3];
+        Log.d("", "rrr: " + bounds.getlevel());
+
+        while (true) {
+            IntersectionNode start = dest;
+            IntersectionNode startToward = dest;
+            LinkedList<IntersectionNode> NoInpath = new LinkedList<>();
+            startToward = dest.getRandomadNode();
+            for (int i = 0; i < (bounds.getlevel() + 1) * 2; i++) {
+                if (!start.equals(dest)&&start.getAdjacentNodes().size()!=1)
+                    startToward = start.getRandomadNode();
+                start = startToward.getRandomadNode();
+                NoInpath.add(start);
+            }
+
+            if (!start.equals(dest) && !startToward.equals(dest)) {
+                startDesttmp[0] = start;
+                startDesttmp[1] = dest;
+                startDesttmp[2] = startToward;
+                Log.d("cool", "eee: " + startDesttmp.toString());
+                break;
+            }
+        }
+        final IntersectionNode[] startDest = startDesttmp;
+
 
         moveOj = map.addMarker(new MarkerOptions().position(startDest[0].getLocation())
                 .title("hello"));
+        moveOj.setIcon(BitmapDescriptorFactory.fromResource(R.raw.obj));
+        moveOj.setAnchor(0.5f,0.5f);
+        moveOj.setTitle("Click to start");
+        moveOj.showInfoWindow();
         Log.d("old ", valueOf(startDest[0].getLocation()));
         startDest[0].setSelected(true);
         destin = map.addMarker(new MarkerOptions().position(startDest[1].getLocation())
                 .title("Destination"));
-
-
-
-
+        destin.setIcon(BitmapDescriptorFactory.fromResource(R.raw.eeend));
+        destin.setAnchor(0.5f,0.5f);
+        destin.setTitle("Destination");
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             IntersectionNode i = startDest[0];
@@ -188,40 +227,100 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
             LatLng previousLoc = cur;
             LatLng destinlocation = destin.getPosition();
 
+
+
+
             int count = 1;
             int countTheFirst = 1;
-
 
 
             @Override
             public boolean onMarkerClick(Marker marker) {
 
+                changeMarkercolorFromRedToGreen(marker);
+
                 //tap the mid point on the edge, set two end points's selected attribute to true
-                if(markerToEdgeMap.containsKey(marker)) {
-                    Edge ed =  markerToEdgeMap.get(marker);
+                if (markerToEdgeMap.containsKey(marker)) {
+                    Edge ed = markerToEdgeMap.get(marker);
                     ed.getFirst().setSelected(true);
                     ed.getSecond().setSelected(true);
 
                     Log.d("----------->>>>>>", ed.getFirst().getLocation().longitude + "," + ed.getFirst().getLocation().latitude
-                    + "," + ed.getSecond().getLocation().longitude + "," + ed.getSecond().getLocation().latitude);
+                            + "," + ed.getSecond().getLocation().longitude + "," + ed.getSecond().getLocation().latitude);
 
                     Log.d("----------->>>>>>", ed.getSecond().getLocation().longitude + "," + ed.getSecond().getLocation().latitude
                             + "," + ed.getFirst().getLocation().longitude + "," + ed.getFirst().getLocation().latitude);
                 }
 
 
-
-                if(marker.equals(moveOj)&& count++ == 1) {
+                if (marker.equals(moveOj) && count++ == 1) {
                     Thread thread = new Thread() {
                         @Override
                         public void run() {
                             try {
 
-                                while(true){
+                                while (true) {
 
                                     //if reach destin, stop moving
-                                    if(cur.equals(destinlocation)) {
+                                    if (cur.equals(destinlocation)) {
                                         Log.d("game status", "win");
+
+
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                                builder.setMessage("You Win");
+                                                builder.setTitle("Hello");
+                                                builder.setPositiveButton("Level Select", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        // User clicked OK button
+                                                        Intent next = new Intent(activity,LevelSelect.class);
+
+                                                        Log.d("checking level from", "onClick: " + levelarea);
+                                                        next.putExtra("level", levelarea);
+
+                                                        activity.finish();
+
+                                                        activity.startActivity(next);
+
+                                                        dialog.dismiss();
+                                                        //
+                                                    }
+
+
+
+
+                                                });
+                                                builder.setNegativeButton("Menu", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        // User clicked OK button
+                                                        Intent next = new Intent(activity,MainActivity.class);
+
+                                                        Log.d("checking level from", "onClick: " + levelarea);
+                                                        next.putExtra("level", levelarea);
+
+                                                        activity.finish();
+
+                                                        activity.startActivity(next);
+
+                                                        dialog.dismiss();
+                                                        //
+                                                    }
+
+
+
+
+                                                });
+
+                                                AlertDialog dialog = builder.create();
+                                                dialog.show();
+
+
+                                            }
+
+                                        });
+
                                         break;
                                     }
 
@@ -230,16 +329,20 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                     IntersectionNode nonTappedNode = i.getAdjacentNodes().get(0);
 
                                     //find how many nodes have been tapped for next intersection
-                                    for(IntersectionNode nextNode: i.getAdjacentNodes()) {
-                                        if(nextNode.isSelected())  {
+                                    for (IntersectionNode nextNode : i.getAdjacentNodes()) {
+                                        if (nextNode.isSelected()) {
                                             tappedNumber++;
                                         } else {
                                             nonTappedNode = nextNode;
                                         }
                                     }
 
-                                    if(totalIntersections - 1 == tappedNumber ||countTheFirst++==1) {
-                                        prevNode  =i;
+                                    if (countTheFirst == 1) {
+                                        nonTappedNode = startDest[2];
+                                    }
+
+                                    if (totalIntersections - 1 == tappedNumber || countTheFirst++ == 1) {
+                                        prevNode = i;
                                         i = nonTappedNode;
                                         previousLoc = cur;
                                         cur = i.getLocation();
@@ -247,9 +350,10 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                             @Override
                                             public void run() {
                                                 try {
-                                                    MarkerAnimation.animateMarkerToHCAndDraw(get(),moveOj,
+                                                    MarkerAnimation.animateMarkerToHCAndDraw(get(), moveOj,
                                                             i.getLocation(), new LatLngInterpolator.Linear());
-                                                    IntersectionToFindMidPointMarker(i,prevNode);
+                                                    //change to the red images for the selectable
+                                                    IntersectionToFindMidPointMarker(i, prevNode);
                                                 } catch (InterruptedException e) {
                                                     e.printStackTrace();
                                                 } catch (ExecutionException e) {
@@ -260,10 +364,10 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                         });
 
                                         //set back to false to be ready for the next round
-                                        for (IntersectionNode one: i.getAdjacentNodes()
-                                             ) {
+                                        for (IntersectionNode one : i.getAdjacentNodes()
+                                                ) {
                                             one.setSelected(false);
-                                            if(one.getLocation().equals(previousLoc)) {
+                                            if (one.getLocation().equals(previousLoc)) {
                                                 one.setSelected(true);
                                                 Log.d("set pre", "yes");
                                             }
@@ -282,6 +386,50 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
                                     } else {
                                         //TODO pops up failure dialog
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                                builder.setMessage("You Lose");
+                                                builder.setTitle("Oops");
+                                                builder.setPositiveButton("Level Select", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        // User clicked OK button
+                                                        Intent next = new Intent(activity,LevelSelect.class);
+
+                                                        Log.d("checking level from", "onClick: " + levelarea);
+                                                        next.putExtra("level", levelarea);
+
+                                                        activity.finish();
+
+                                                        activity.startActivity(next);
+
+                                                        dialog.dismiss();
+                                                        //
+                                                    }
+                                                });
+                                                builder.setNegativeButton("Menu", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        // User clicked OK button
+                                                        Intent next = new Intent(activity,MainActivity.class);
+
+                                                        Log.d("checking level from", "onClick: " + levelarea);
+                                                        next.putExtra("level", levelarea);
+
+                                                        activity.finish();
+
+                                                        activity.startActivity(next);
+
+                                                        dialog.dismiss();
+                                                        //
+                                                    }
+                                                });
+
+                                                AlertDialog dialog = builder.create();
+                                                dialog.show();
+                                            }
+
+                                        });
                                         Log.d("tappedNum", valueOf(tappedNumber));
                                         Log.d("totalNum", valueOf(totalIntersections));
                                         Log.d("game status", "end");
@@ -290,8 +438,6 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                     }
 
                                     //i = i.getAdjacentNodes().get(new Random().nextInt(i.getAdjacentNodes().size()));
-
-
 
 
                                     sleep(6000);
@@ -307,22 +453,10 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                     thread.start();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
                 }
-                return false;
-            }});
+                return true;
+            }
+        });
 
 
 
@@ -392,11 +526,9 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         });*/
 
 
-
-
     }
 
-    private void displayPointsAndArea( LatLngBounds areas) {
+    private void displayPointsAndArea(LatLngBounds areas) {
         int width = this.activity.getResources().getDisplayMetrics().widthPixels;
         int height = this.activity.getResources().getDisplayMetrics().heightPixels;
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(areas, width, height, 1));
@@ -511,5 +643,9 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         return pointSets;
     }
 
+    @Override
+    protected void onCancelled(GoogleMap googleMap) {
+        super.onCancelled(googleMap);
 
+    }
 }

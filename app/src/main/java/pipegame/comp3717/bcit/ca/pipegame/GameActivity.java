@@ -1,5 +1,8 @@
 package pipegame.comp3717.bcit.ca.pipegame;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,20 +60,17 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleApiClient client;
 
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        levelarea = this.getIntent().getIntExtra("level", 0) - 1;
-
-
+        levelarea = this.getIntent().getIntExtra("level", 1) - 1;
+        TextView levellabel = (TextView) findViewById(R.id.textView);
+        String lela = "Level" + String.valueOf(levelarea + 1);
+        levellabel.setText(lela);
+        Log.d("gameact: level", lela);
 
 
         SupportMapFragment mapFragment =
@@ -82,7 +83,6 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -90,12 +90,14 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
 /*        levelarea = this.getIntent().getIntExtra("level", -1) - 1;
         displayPointsAndArea(levelarea, areas, pointSets);*/
 
+        levelarea = this.getIntent().getIntExtra("level", 1) - 1;
+
+            myMapBeha = new Map(this);
+            myMapBeha.execute(map);
 
 
-       myMapBeha = new Map(this);
-        myMapBeha.execute(map);
+
     }
-
 
 
     private List<LatLng> getPoints(final Iterable<KmlContainer> containers) {
@@ -173,7 +175,6 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(areas.get(level), width, height, 1));
 
 
-
         for (LatLng p : pointSets.get(level)) {
             map.addMarker(new MarkerOptions()
                     .position(p)
@@ -202,8 +203,9 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Override
-    public void onStart()  {
+    public void onStart() {
         super.onStart();
+        levelarea = this.getIntent().getIntExtra("level", 0) - 1;
         Log.d("state", "onStart: ");
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -240,6 +242,12 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
         client.disconnect();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
     public int getLevelarea() {
         return levelarea;
     }
@@ -247,4 +255,6 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     public GoogleMap getmap() {
         return map;
     }
+
+
 }

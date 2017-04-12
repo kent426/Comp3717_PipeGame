@@ -83,7 +83,7 @@ public class MarkerAnimation {
                 googleMap.addPolyline(new PolylineOptions()
                         .add(startPosition,newPosition)
                         .width(20)
-                        .color(Color.BLACK));
+                        .color(Color.BLUE));
 
 
             }

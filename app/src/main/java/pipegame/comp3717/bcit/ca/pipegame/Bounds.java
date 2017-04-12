@@ -2,6 +2,7 @@ package pipegame.comp3717.bcit.ca.pipegame;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -19,12 +20,19 @@ import java.util.Scanner;
 public class Bounds {
     private ArrayList<LatLng> points;
     private LatLngBounds bound;
-    GameActivity act;
+    private GameActivity act;
+    private int level;
 
     public Bounds(GameActivity a) {
         points = new ArrayList<LatLng>();
         act = a;
         readpointsForBound();
+        level = a.getLevelarea();
+    }
+
+    public int getlevel() {
+        return level;
+
     }
 
 
@@ -33,7 +41,8 @@ public class Bounds {
 
     public void readpointsForBound() {
         String name;
-        Scanner s = new Scanner(act.getResources().openRawResource(act.getResources().getIdentifier("bound" + act.getLevelarea(),"raw", act.getPackageName())));
+        Log.d("readpointsForBound: ",Integer.toString(level) );
+        Scanner s = new Scanner(act.getResources().openRawResource(act.getResources().getIdentifier("bound" + Integer.toString(level),"raw", act.getPackageName())));
 
         ArrayList<String> all = new ArrayList<>();
         String allSt = "";
