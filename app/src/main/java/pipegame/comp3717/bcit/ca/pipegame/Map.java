@@ -117,6 +117,7 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
     @Override
     protected GoogleMap doInBackground(GoogleMap... g) {
+
             bounds.readpointsForBound();
 
 
@@ -219,6 +220,11 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
         destin.setAnchor(0.5f,0.5f);
         destin.setTitle("Destination");
 
+        double cLat = (destin.getPosition().latitude + moveOj.getPosition().latitude) / 2.0;
+        double cLong = (destin.getPosition().longitude + moveOj.getPosition().longitude) / 2.0;
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(cLat, cLong), 15));
+
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             IntersectionNode i = startDest[0];
             IntersectionNode prevNode = i;
@@ -266,63 +272,69 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                         Log.d("game status", "win");
 
 
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                                                builder.setMessage("You Win");
-                                                builder.setTitle("Hello");
-                                                builder.setPositiveButton("Level Select", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        // User clicked OK button
-                                                        Intent next = new Intent(activity,LevelSelect.class);
+                                        if(!Singleton.isCancelAsyn()){
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                                    builder.setMessage("You Win");
+                                                    builder.setTitle("Hello");
+                                                    builder.setPositiveButton("Level Select", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            // User clicked OK button
+                                                            Intent next = new Intent(activity,LevelSelect.class);
 
-                                                        Log.d("checking level from", "onClick: " + levelarea);
-                                                        next.putExtra("level", levelarea);
+                                                            Log.d("checking level from", "onClick: " + levelarea);
+                                                            next.putExtra("level", levelarea);
 
-                                                        activity.finish();
+                                                            activity.finish();
 
-                                                        activity.startActivity(next);
+                                                            activity.startActivity(next);
 
-                                                        dialog.dismiss();
-                                                        //
+                                                            dialog.dismiss();
+                                                            //
+                                                        }
+
+
+
+
+                                                    });
+                                                    builder.setNegativeButton("Menu", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            // User clicked OK button
+                                                            Intent next = new Intent(activity,MainActivity.class);
+
+                                                            Log.d("checking level from", "onClick: " + levelarea);
+                                                            next.putExtra("level", levelarea);
+
+                                                            activity.finish();
+
+                                                            activity.startActivity(next);
+
+                                                            dialog.dismiss();
+                                                            //
+                                                        }
+
+
+
+
+                                                    });
+
+                                                    if(!Singleton.isCancelAsyn()) {
+                                                        AlertDialog dialog = builder.create();
+                                                        dialog.show();
                                                     }
 
 
+                                                }
+
+                                            });
+
+                                            break;
+                                        }
+                                        }
 
 
-                                                });
-                                                builder.setNegativeButton("Menu", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        // User clicked OK button
-                                                        Intent next = new Intent(activity,MainActivity.class);
-
-                                                        Log.d("checking level from", "onClick: " + levelarea);
-                                                        next.putExtra("level", levelarea);
-
-                                                        activity.finish();
-
-                                                        activity.startActivity(next);
-
-                                                        dialog.dismiss();
-                                                        //
-                                                    }
-
-
-
-
-                                                });
-
-                                                AlertDialog dialog = builder.create();
-                                                dialog.show();
-
-
-                                            }
-
-                                        });
-
-                                        break;
-                                    }
 
                                     int totalIntersections = i.getAdjacentNodes().size();
                                     int tappedNumber = 0;
@@ -386,50 +398,56 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
 
                                     } else {
                                         //TODO pops up failure dialog
-                                        activity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                                                builder.setMessage("You Lose");
-                                                builder.setTitle("Oops");
-                                                builder.setPositiveButton("Level Select", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        // User clicked OK button
-                                                        Intent next = new Intent(activity,LevelSelect.class);
+                                        if(!Singleton.isCancelAsyn()){
+                                            activity.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                                    builder.setMessage("You Lose");
+                                                    builder.setTitle("Oops");
+                                                    builder.setPositiveButton("Level Select", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            // User clicked OK button
+                                                            Intent next = new Intent(activity,LevelSelect.class);
 
-                                                        Log.d("checking level from", "onClick: " + levelarea);
-                                                        next.putExtra("level", levelarea);
+                                                            Log.d("checking level from", "onClick: " + levelarea);
+                                                            next.putExtra("level", levelarea);
 
-                                                        activity.finish();
+                                                            activity.finish();
 
-                                                        activity.startActivity(next);
+                                                            activity.startActivity(next);
 
-                                                        dialog.dismiss();
-                                                        //
+                                                            dialog.dismiss();
+                                                            //
+                                                        }
+                                                    });
+                                                    builder.setNegativeButton("Menu", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            // User clicked OK button
+                                                            Intent next = new Intent(activity,MainActivity.class);
+
+                                                            Log.d("checking level from", "onClick: " + levelarea);
+                                                            next.putExtra("level", levelarea);
+
+                                                            activity.finish();
+
+                                                            activity.startActivity(next);
+
+                                                            dialog.dismiss();
+                                                            //
+                                                        }
+                                                    });
+                                                    if(!Singleton.isCancelAsyn()) {
+                                                        AlertDialog dialog = builder.create();
+                                                        dialog.show();
                                                     }
-                                                });
-                                                builder.setNegativeButton("Menu", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        // User clicked OK button
-                                                        Intent next = new Intent(activity,MainActivity.class);
 
-                                                        Log.d("checking level from", "onClick: " + levelarea);
-                                                        next.putExtra("level", levelarea);
 
-                                                        activity.finish();
+                                                }
 
-                                                        activity.startActivity(next);
+                                            });
+                                        }
 
-                                                        dialog.dismiss();
-                                                        //
-                                                    }
-                                                });
-
-                                                AlertDialog dialog = builder.create();
-                                                dialog.show();
-                                            }
-
-                                        });
                                         Log.d("tappedNum", valueOf(tappedNumber));
                                         Log.d("totalNum", valueOf(totalIntersections));
                                         Log.d("game status", "end");
@@ -440,11 +458,13 @@ public class Map extends AsyncTask<GoogleMap, Integer, GoogleMap> implements Ser
                                     //i = i.getAdjacentNodes().get(new Random().nextInt(i.getAdjacentNodes().size()));
 
 
-                                    sleep(6000);
+                                    sleep(3000);
 
 
                                 }
                             } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }

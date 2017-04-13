@@ -12,12 +12,13 @@ public class Singleton {
 
         private static IntersectionMap intermap;
 
+
     public static boolean isCancelAsyn() {
         return cancelAsyn;
     }
 
-    public static void setCancelAsyn(boolean cancelAsyn) {
-        cancelAsyn = cancelAsyn;
+    public static void setCancelAsyn(boolean cancelAs) {
+        cancelAsyn = cancelAs;
     }
 
     private static boolean cancelAsyn = false;

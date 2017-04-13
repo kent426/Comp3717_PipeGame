@@ -205,6 +205,7 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onStart() {
         super.onStart();
+        Singleton.setCancelAsyn(false);
         levelarea = this.getIntent().getIntExtra("level", 0) - 1;
         Log.d("state", "onStart: ");
 
@@ -223,7 +224,17 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    public void onBackPressed() {
+        Singleton.setCancelAsyn(true);
+        super.onBackPressed();
+    }
+
+
+
+    @Override
     public void onPause() {
+        Singleton.setCancelAsyn(true);
+        Log.d("ddddddd", ""+Singleton.isCancelAsyn());
         super.onPause();
         Log.d("state", "onPause: ");
 
@@ -232,6 +243,7 @@ public class GameActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onStop() {
+        Singleton.setCancelAsyn(true);
         Log.d("State", "onStop: ");
         super.onStop();
 
